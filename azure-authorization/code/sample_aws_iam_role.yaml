@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Sample AWS IAM Policy"
+Resources:
+
+  ## Create IAM Policy
+
+  SecurityAdminsIAMPolicy:  
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "This is a sample managed policy"
+      ManagedPolicyName: Custom-CloudWatchLogs-Policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+            
+            ## Allow access to CloudWatch Logs
+          -
+            Sid: "AllowCloudWatchLogs"
+            Effect: "Allow"
+            Action:
+              - "logs:*"
+            Resource: "*"
+          
+            ## Deny destructive calls to CloudWatch Logs when the resource is tagged with production
+          -
+            Sid: "DenyDestructiveCallsToCloudWatchLogs"
+            Effect: "Deny"
+            Action:
+              - "Logs:Delete*"
+            Resource: "*"
+            Condition:
+              StringEquals: 
+                "aws:ResourceTag/environment": "production"
+

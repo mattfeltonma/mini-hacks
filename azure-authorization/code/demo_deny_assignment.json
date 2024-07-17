@@ -1,0 +1,82 @@
+
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "The location name to deploy the resources"
+            }
+        },
+        "subOwnerObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "The object id of the security principal that will be the owner of the subscription"
+            }
+        },
+        "uniqueGuid": {
+            "type": "string",
+            "metadata": {
+                "description": "The 5 character unique identifier to use for resources"
+            }
+        }
+    },
+    "variables": {
+        "_apiVersionOperationalInsights": "2022-10-01",
+        "_apiVersionResources": "2022-09-01",
+        "_apiVersionRoleAssignments": "2022-04-01",
+        "deploymentNameResources": "[concat('deploy-resources-', parameters('uniqueGuid'))]",
+        "lawName": "[concat('law-', parameters('uniqueGuid'))]",
+        "rgName": "[concat('rg-demo-rbac-deny-assign', parameters('uniqueGuid'))]"
+    },
+    "resources": [
+        {
+            "name": "[guid(subscription().id, parameters('uniqueGuid'))]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "[variables('_apiVersionRoleAssignments')]",
+            "properties": {
+                "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+                "principalId": "[parameters('subOwnerObjectId')]",
+                "scope": "[subscription().id]"
+            }
+        },
+        {
+            "name": "[variables('rgName')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "[variables('_apiVersionresources')]",
+            "location": "[parameters('location')]",
+            "properties": {
+            }
+        },
+
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[variables('deploymentNameResources')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', variables('rgName'))]"
+            ],
+            "resourceGroup": "[variables('rgName')]",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "name": "[variables('lawName')]",
+                            "type": "Microsoft.OperationalInsights/workspaces",
+                            "apiVersion": "[variables('_apiVersionOperationalInsights')]",
+                            "location": "[parameters('location')]",
+                            "sku": {
+                                "name": "PerGB2018"
+                            }
+                        }
+                    ],
+                    "outputs": {}
+                }
+            }
+        }
+    ]
+}

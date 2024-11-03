@@ -147,7 +147,8 @@ The exercise will create the resources illustrated below.
     --deny-settings-apply-to-child-scopes \
     --deny-settings-mode denyWriteAndDelete \
     --deny-settings-excluded-actions "microsoft.insights/diagnosticSettings/write" \
-    --deny-settings-excluded-principals $object_id
+    --deny-settings-excluded-principals $object_id \
+    --action-on-unamange "DeleteAll"
     ```
     *Azure PowerShell*
     ```
@@ -161,7 +162,8 @@ The exercise will create the resources illustrated below.
     -DenySettingsApplyToChildScopes `
     -DenySettingsMode DenyWriteAndDelete `
     -DenySettingsExcludedAction "microsoft.insights/diagnosticSettings/write" `
-    -DenySettingsExcludedPrincipal $object_id
+    -DenySettingsExcludedPrincipal $object_id `
+    -ActionOnUnmanage "DeleteAll"
     ```
 
 ## Demo - Demonstrate how to review the deny assignments that were created
